@@ -1,0 +1,19 @@
+{
+  "name": "fc-er-plugin-ajax",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Main.js",
+  "browser": {
+    "./lib/XMLHttpRequest": "./lib/XMLHttpRequest-browser"
+  },
+  "scripts": {
+    "build": "browserify -e ./index.js  -o ./dist/index.js -s ajax_plugin"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amdefine": "^1.0.0",
+    "underscore": "^1.8.3",
+    "xmlhttprequest": "^1.8.0"
+  }
+}
