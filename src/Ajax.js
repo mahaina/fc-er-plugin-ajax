@@ -1,6 +1,7 @@
 'use strict';
 
 const defaultSettings = require('./defaultSettings');
+const url = require('url');
 
 const _ = require('underscore');
 const jsonType = 'application/json';
@@ -70,6 +71,7 @@ const request = (options) => {
         throw new Error('setting url is undefined');
     }
 
+    settings.url = url.resolve(settings.baseUrl, settings.url);
     settings.url = appendQuery(settings.url, `path=${options.path}`);
     settings.url = appendQuery(settings.url, param(settings.urlParams));
 
@@ -280,6 +282,7 @@ const adjustOptions = (path, params, options) => {
     options = options || {};
 
     let url = options.url;
+    let baseUrl = options.baseUrl;
     let reqId = options.reqId || uid();
     let eventId = options.eventId || guid();
     let globalData = options.globalData;
@@ -292,11 +295,12 @@ const adjustOptions = (path, params, options) => {
 
     let urlParams = {reqId};
 
-    return {url, path, data, urlParams};
+    return {url, baseUrl, path, data, urlParams};
 };
 
 class Ajax {
-    constructor(globalData) {
+    constructor(baseUrl, globalData) {
+        this.baseUrl = baseUrl || '';
         this.globalData = globalData || {};
     }
 
@@ -310,6 +314,7 @@ class Ajax {
 
     request(path, params, options) {
         options = options || {};
+        options.baseUrl = this.baseUrl;
         options.globalData = this.getGlobalData();
         let ajaxOptions = adjustOptions(path, params, options);
 

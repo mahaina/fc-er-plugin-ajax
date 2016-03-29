@@ -9,8 +9,9 @@ const ajaxPlugin = {
         options = options || {};
         let userid = options.userid || '';
         let token = options.token || '';
+        let baseUrl = options.baseUrl || '';
 
-        let ajax = new Ajax({userid, token})
+        let ajax = new Ajax(baseUrl, {userid, token})
 
         erContext.request = ajax.request.bind(ajax);
     }
