@@ -3343,7 +3343,10 @@ const adjustOptions = (path, params, options) => {
 
     let urlParams = {reqId};
 
-    return {url, baseUrl, path, data, urlParams};
+    let ret = {baseUrl, path, data, urlParams};
+    url && (ret.url = url);
+
+    return ret;
 };
 
 class Ajax {
