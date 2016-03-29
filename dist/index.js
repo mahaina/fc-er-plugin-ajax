@@ -3422,6 +3422,8 @@ module.exports = {
 
     dataType: 'json',
 
+    url: 'request.ajax',
+
     globalData: {}
 };
 
