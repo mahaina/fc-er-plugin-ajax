@@ -12,7 +12,7 @@ const ajaxPlugin = {
         let token = options.token || '';
         let baseUrl = options.baseUrl || '';
 
-        let ajax = new Ajax(baseUrl, {userid, token})
+        let ajax = new Ajax(baseUrl, {userid, token});
 
         erContext.request = ajax.request.bind(ajax);
     }
@@ -3366,7 +3366,14 @@ class Ajax {
         options.globalData = this.getGlobalData();
         let ajaxOptions = adjustOptions(path, params, options);
 
-        return ajax.request(ajaxOptions)
+        let p = new Promise((resolve, reject) => {
+            ajaxOptions.success = resolve;
+            ajaxOptions.error = reject
+        });
+
+        ajax.request(ajaxOptions)
+
+        return p;
     }
 }
 
@@ -3412,6 +3419,8 @@ module.exports = {
     crossDomain: false,
     // Default timeout
     timeout: 0,
+
+    dataType: 'json',
 
     globalData: {}
 };

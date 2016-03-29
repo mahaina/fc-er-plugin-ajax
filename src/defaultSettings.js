@@ -37,5 +37,7 @@ module.exports = {
     // Default timeout
     timeout: 0,
 
+    dataType: 'json',
+
     globalData: {}
 };

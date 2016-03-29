@@ -11,7 +11,7 @@ const ajaxPlugin = {
         let token = options.token || '';
         let baseUrl = options.baseUrl || '';
 
-        let ajax = new Ajax(baseUrl, {userid, token})
+        let ajax = new Ajax(baseUrl, {userid, token});
 
         erContext.request = ajax.request.bind(ajax);
     }
