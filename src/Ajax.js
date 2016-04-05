@@ -90,6 +90,7 @@ const request = (options) => {
     let baseHeads = {};
     let protocol = /^([\w-]+:)\/\//.test(settings.url) ? RegExp.$1 : 'http';
     let xhr = settings.xhr();
+    xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
     let abortTimeout;
 
     if (!settings.crossDomain) {
@@ -281,44 +282,35 @@ const guid = () => {
 const adjustOptions = (path, params, options) => {
     options = options || {};
 
-    let url = options.url;
-    let baseUrl = options.baseUrl;
+    let userid = options.userid || '';
+    let token = options.token || '';
+    let globalData = {userid, token};
     let reqId = options.reqId || uid();
     let eventId = options.eventId || guid();
-    let globalData = options.globalData;
+    let secret = options.secret;
+    let source = options.source;
 
     params = JSON.stringify(params || {});
 
-    let data = _.extend({}, globalData, {reqId, path, eventId, params});
-    options.secret && (data.secret = options.secret);
-    options.source && (data.source = options.source);
+    let data = {reqId, globalData, path, eventId, params};
+    secret && (data.secret = secret);
+    source && (data.source = source);
 
     let urlParams = {reqId};
 
-    let ret = {baseUrl, path, data, urlParams};
-    url && (ret.url = url);
+    let omitNames = ['userid', 'token', 'reqId', 'eventId', 'secret', 'source']
+    let otherOptions = _.omit(options, omitNames);
 
-    return ret;
+    return _.extend(otherOptions, {path, data, urlParams});
 };
 
 class Ajax {
-    constructor(baseUrl, globalData) {
-        this.baseUrl = baseUrl || '';
-        this.globalData = globalData || {};
-    }
-
-    getGlobalData() {
-        return this.globalData;
-    }
-
-    setGlobalData(globalData) {
-        this.globalData = globalData;
+    constructor(globalOptions) {
+        this.globalOptions = globalOptions || {};
     }
 
     request(path, params, options) {
-        options = options || {};
-        options.baseUrl = this.baseUrl;
-        options.globalData = this.getGlobalData();
+        options = _.extend({}, this.globalOptions, options);
         let ajaxOptions = adjustOptions(path, params, options);
 
         let p = new Promise((resolve, reject) => {
