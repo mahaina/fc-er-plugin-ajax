@@ -284,7 +284,6 @@ const adjustOptions = (path, params, options) => {
 
     let userid = options.userid || '';
     let token = options.token || '';
-    let globalData = {userid, token};
     let reqId = options.reqId || uid();
     let eventId = options.eventId || guid();
     let secret = options.secret;
@@ -292,7 +291,7 @@ const adjustOptions = (path, params, options) => {
 
     params = JSON.stringify(params || {});
 
-    let data = {reqId, globalData, path, eventId, params};
+    let data = {reqId, userid, token, path, eventId, params};
     secret && (data.secret = secret);
     source && (data.source = source);
 
