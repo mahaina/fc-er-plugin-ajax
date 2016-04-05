@@ -3113,7 +3113,9 @@ const request = (options) => {
         throw new Error('setting url is undefined');
     }
 
-    settings.url = url.resolve(settings.baseUrl, settings.url);
+    if (settings.baseUrl) {
+        settings.url = url.resolve(settings.baseUrl, settings.url);
+    }
     settings.url = appendQuery(settings.url, `path=${options.path}`);
     settings.url = appendQuery(settings.url, param(settings.urlParams));
 
