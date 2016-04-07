@@ -3046,6 +3046,7 @@ const defaultSettings = require('./defaultSettings');
 const url = require('url');
 
 const _ = require('underscore');
+const status = require('./status');
 const jsonType = 'application/json';
 const htmlType = 'text/html';
 const blankRE = /^\s*$/;
@@ -3347,6 +3348,15 @@ const adjustOptions = (path, params, options) => {
     return _.extend(otherOptions, {path, data, urlParams});
 };
 
+const getRedirectUrl = (baseUrl) => {
+    if (baseUrl == null) {
+        baseUrl = global.location.href;
+    }
+    let search = url.parse(baseUrl).search || '';
+
+    return url.resolve(baseUrl, 'main.do') + search;
+};
+
 class Ajax {
     constructor(globalOptions) {
         this.globalOptions = globalOptions || {};
@@ -3361,16 +3371,54 @@ class Ajax {
             ajaxOptions.error = reject
         });
 
-        ajax.request(ajaxOptions)
+        ajax.request(ajaxOptions);
 
-        return p;
+        return p.then((response) => {
+            // 如果是转向行为，直接转向，整体转为reject
+            if (_.isObject(response) && response.redirect) {
+                throw {
+                    status: status.REQ_CODE.REDIRECT,
+                    desc: status.REQ_CODE_DESC.REDIRECT,
+                    redirecturl: response.redirecturl || getRedirectUrl(options.baseUrl),
+                    response: response
+                };
+            }
+            return response;
+        }, (error) => {
+            let httpStatus = error.status;
+
+            if (httpStatus === 408) {
+                throw {
+                    status: status.REQ_CODE.TIMEOUT,
+                    desc: status.REQ_CODE_DESC.TIMEOUT,
+                    response: null
+                };
+            }
+
+            if (httpStatus < 200 || (httpStatus >= 300 && httpStatus !== 304)) {
+                throw {
+                    httpStatus: httpStatus,
+                    status: status.REQ_CODE.REQUEST_ERROR,
+                    desc: status.REQ_CODE_DESC.REQUEST_ERROR,
+                    response: null
+                };
+            }
+
+            throw {
+                httpStatus: httpStatus,
+                status: status.REQ_CODE.REQUEST_ERROR,
+                desc: status.REQ_CODE_DESC.REQUEST_ERROR,
+                error: JSON.stringify(error.error),
+                response: null
+            };
+        });
     }
 }
 
 module.exports = Ajax;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./defaultSettings":11,"underscore":9,"url":7}],11:[function(require,module,exports){
+},{"./defaultSettings":11,"./status":12,"underscore":9,"url":7}],11:[function(require,module,exports){
 'use strict';
 
 const XHR = require('../lib/XMLHttpRequest');
@@ -3412,10 +3460,70 @@ module.exports = {
 
     dataType: 'json',
 
-    url: 'request.ajax',
-
-    globalData: {}
+    url: 'request.ajax'
 };
 
-},{"../lib/XMLHttpRequest":2}]},{},[1])(1)
+},{"../lib/XMLHttpRequest":2}],12:[function(require,module,exports){
+'use strict';
+
+/**
+ * ajax数据携带的业务status code配置
+ * @type {Object}
+ */
+const REQ_STATUS_CODE = {
+    INITIALIZE: 0,
+    SUCCESS: 200,  // 这是成功的标识，下面的都是失败
+    PARTFAIL: 300,  // 业务部分失败
+    REDIRECT: 302,  // 需要转向另外一个地址
+    FAIL: 400,  // 业务失败
+    SERVER_ERROR: 500,  // 服务端异常
+    PARAMETER_ERROR: 600,  // 请求参数错误
+    NOAUTH: 700,  // 没有权限
+    SERVER_EXCEEDED: 800,  // 数量超过限制
+    TIMEOUT: 900,  // 超时
+    CLIENT_SIDE_EXCEPTION: 910,  // ajax成功了，但是后置处理数据抛出异常
+    REQUEST_ERROR: 920,  // ajax通讯发生了错误，这时需要去看httpStatus
+    UNRECOGNIZED_STATUS: 930  // 返回的status没有被识别
+};
+
+/**
+ * ajax的数据携带的业务status code对应的desc配置
+ * @type {Object}
+ */
+const REQ_STATUS_DESC = {
+    INITIALIZE: 'ajax-initialize',
+    SUCCESS: 'ajax-success',
+    PARTFAIL: 'ajax-some-failed',
+    REDIRECT: 'ajax-redirect',
+    FAIL: 'ajax-fail',
+    SERVER_ERROR: 'ajax-server-error',
+    PARAMETER_ERROR: 'ajax-parameter-error',
+    NOAUTH: 'ajax-noauth',
+    SERVER_EXCEEDED: 'ajax-server-exceeded',
+    TIMEOUT: 'ajax-timeout',
+    CLIENT_SIDE_EXCEPTION: 'ajax-client-side-exception',
+    REQUEST_ERROR: 'ajax-request-error',
+    UNRECOGNIZED_STATUS: 'ajax-unrecognized-status'
+};
+
+// 模块声明时，自动初始化具体的code对应的描述，增加值对应的描述
+for (var key in REQ_STATUS_CODE) {
+    if (REQ_STATUS_CODE.hasOwnProperty(key)) {
+        REQ_STATUS_DESC[REQ_STATUS_CODE[key]] = REQ_STATUS_DESC[key];
+    }
+}
+
+module.exports = {
+    /**
+     * @property {Mixed} [REQ_CODE] ajax行为处理结果的业务code
+     */
+    REQ_CODE: REQ_STATUS_CODE,
+
+    /**
+     * @property {Mixed} [REQ_CODE_DESC] ajax行为处理结果的业务code描述
+     */
+    REQ_CODE_DESC: REQ_STATUS_DESC
+};
+
+},{}]},{},[1])(1)
 });
