@@ -4,6 +4,7 @@ const defaultSettings = require('./defaultSettings');
 const url = require('url');
 
 const _ = require('underscore');
+const status = require('./status');
 const jsonType = 'application/json';
 const htmlType = 'text/html';
 const blankRE = /^\s*$/;
@@ -305,6 +306,15 @@ const adjustOptions = (path, params, options) => {
     return _.extend(otherOptions, {path, data, urlParams});
 };
 
+const getRedirectUrl = (baseUrl) => {
+    if (baseUrl == null) {
+        baseUrl = global.location.href;
+    }
+    let search = url.parse(baseUrl).search || '';
+
+    return url.resolve(baseUrl, 'main.do') + search;
+};
+
 class Ajax {
     constructor(globalOptions) {
         this.globalOptions = globalOptions || {};
@@ -319,9 +329,47 @@ class Ajax {
             ajaxOptions.error = reject
         });
 
-        ajax.request(ajaxOptions)
+        ajax.request(ajaxOptions);
 
-        return p;
+        return p.then((response) => {
+            // 如果是转向行为，直接转向，整体转为reject
+            if (_.isObject(response) && response.redirect) {
+                throw {
+                    status: status.REQ_CODE.REDIRECT,
+                    desc: status.REQ_CODE_DESC.REDIRECT,
+                    redirecturl: response.redirecturl || getRedirectUrl(options.baseUrl),
+                    response: response
+                };
+            }
+            return response;
+        }, (error) => {
+            let httpStatus = error.status;
+
+            if (httpStatus === 408) {
+                throw {
+                    status: status.REQ_CODE.TIMEOUT,
+                    desc: status.REQ_CODE_DESC.TIMEOUT,
+                    response: null
+                };
+            }
+
+            if (httpStatus < 200 || (httpStatus >= 300 && httpStatus !== 304)) {
+                throw {
+                    httpStatus: httpStatus,
+                    status: status.REQ_CODE.REQUEST_ERROR,
+                    desc: status.REQ_CODE_DESC.REQUEST_ERROR,
+                    response: null
+                };
+            }
+
+            throw {
+                httpStatus: httpStatus,
+                status: status.REQ_CODE.REQUEST_ERROR,
+                desc: status.REQ_CODE_DESC.REQUEST_ERROR,
+                error: JSON.stringify(error.error),
+                response: null
+            };
+        });
     }
 }
 

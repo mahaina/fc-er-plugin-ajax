@@ -39,7 +39,5 @@ module.exports = {
 
     dataType: 'json',
 
-    url: 'request.ajax',
-
-    globalData: {}
+    url: 'request.ajax'
 };
