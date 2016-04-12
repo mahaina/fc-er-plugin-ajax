@@ -2,13 +2,15 @@
 
 const Ajax = require('./src/Ajax');
 
-const ajaxPlugin = {
-    name: 'AjaxPlugin',
+class AjaxPlugin {
+    static get name () {
+        return 'ajax';
+    }
 
-    plugErContext: (erContext, options) => {
+    constructor(erContext, options) {
         let ajax = new Ajax(options);
         erContext.request = ajax.request.bind(ajax);
     }
-};
+}
 
-module.exports = ajaxPlugin;
+module.exports = AjaxPlugin;
