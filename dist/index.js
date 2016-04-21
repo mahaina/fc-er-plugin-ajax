@@ -1,18 +1,29 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.ajax_plugin = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-const Ajax = require('./src/Ajax');
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-class AjaxPlugin {
-    constructor(erContext, options) {
-        let ajax = new Ajax(options);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Ajax = require('./src/Ajax');
+
+var AjaxPlugin = function () {
+    function AjaxPlugin(erContext, options) {
+        _classCallCheck(this, AjaxPlugin);
+
+        var ajax = new Ajax(options);
         erContext.request = ajax.request.bind(ajax);
     }
 
-    get name () {
-        return 'ajax';
-    }
-}
+    _createClass(AjaxPlugin, [{
+        key: 'name',
+        get: function get() {
+            return 'ajax';
+        }
+    }]);
+
+    return AjaxPlugin;
+}();
 
 module.exports = AjaxPlugin;
 
@@ -21,6 +32,7 @@ module.exports = AjaxPlugin;
 'use strict';
 
 module.exports = global.XMLHttpRequest;
+
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],3:[function(require,module,exports){
 (function (global){
@@ -3044,33 +3056,34 @@ module.exports = {
 (function (global){
 'use strict';
 
-const defaultSettings = require('./defaultSettings');
-const url = require('url');
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-const _ = require('underscore');
-const status = require('./status');
-const jsonType = 'application/json';
-const htmlType = 'text/html';
-const blankRE = /^\s*$/;
-const scriptTypeRE = /^(?:text|application)\/javascript/i;
-const xmlTypeRE = /^(?:text|application)\/xml/i;
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-const appendQuery = (url, query) => (
-    (url + '&' + query).replace(/[&?]{1,2}/, '?')
-);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-const mimeToDataType = (mime) => (
-    mime && (mime === htmlType ? 'html' :
-        mime === jsonType ? 'json' :
-            scriptTypeRE.test(mime) ? 'script' :
-            xmlTypeRE.test(mime) && 'xml') || 'text'
-);
+var defaultSettings = require('./defaultSettings');
+var url = require('url');
 
+var _ = require('underscore');
+var status = require('./status');
+var jsonType = 'application/json';
+var htmlType = 'text/html';
+var blankRE = /^\s*$/;
+var scriptTypeRE = /^(?:text|application)\/javascript/i;
+var xmlTypeRE = /^(?:text|application)\/xml/i;
 
+var appendQuery = function appendQuery(url, query) {
+    return (url + '&' + query).replace(/[&?]{1,2}/, '?');
+};
+
+var mimeToDataType = function mimeToDataType(mime) {
+    return mime && (mime === htmlType ? 'html' : mime === jsonType ? 'json' : scriptTypeRE.test(mime) ? 'script' : xmlTypeRE.test(mime) && 'xml') || 'text';
+};
 
 // serialize payload and append it to the URL for GET requests
-const serializeData = (options) => {
-    if (options.data && typeof options.data === 'object') {
+var serializeData = function serializeData(options) {
+    if (options.data && _typeof(options.data) === 'object') {
         options.data = param(options.data);
     }
     if (options.data && (!options.type || options.type.toUpperCase() === 'GET')) {
@@ -3078,37 +3091,35 @@ const serializeData = (options) => {
     }
 };
 
-const param = (obj) => {
-    let params = [];
-    params.add = function(k, v) {
-        this.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+var param = function param(obj) {
+    var params = [];
+    params.add = function (k, v) {
+        this.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
     };
     serialize(params, obj);
 
     return params.join('&').replace('%20', '+');
 };
 
-const serialize = (params, obj, scope) => {
-    let isArray = _.isArray(obj);
-    for (let key in obj) {
-        let value = obj[key];
+var serialize = function serialize(params, obj, scope) {
+    var isArray = _.isArray(obj);
+    for (var key in obj) {
+        var value = obj[key];
         if (scope) {
-            key = isArray ? scope : `${scope}.${key}`;
+            key = isArray ? scope : scope + '.' + key;
         }
         if (!scope && isArray) {
             params.add(value.name, value.value);
-        }
-        else if (typeof value === 'object') {
+        } else if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
             serialize(params, value, key);
-        }
-        else {
+        } else {
             params.add(key, value);
         }
     }
 };
 
-const request = (options) => {
-    let settings = _.extend({}, defaultSettings, options || {});
+var request = function request(options) {
+    var settings = _.extend({}, defaultSettings, options || {});
 
     ajaxStart(settings);
 
@@ -3119,11 +3130,11 @@ const request = (options) => {
     if (settings.baseUrl) {
         settings.url = url.resolve(settings.baseUrl, settings.url);
     }
-    settings.url = appendQuery(settings.url, `path=${options.path}`);
+    settings.url = appendQuery(settings.url, 'path=' + options.path);
     settings.url = appendQuery(settings.url, param(settings.urlParams));
 
-    let dataType = settings.dataType;
-    let hasPlaceholder = /=\?/.test(settings.url);
+    var dataType = settings.dataType;
+    var hasPlaceholder = /=\?/.test(settings.url);
     if (dataType === 'jsonp' || hasPlaceholder) {
         if (!hasPlaceholder) {
             settings.url = appendQuery(settings.url, 'callback=?');
@@ -3133,12 +3144,12 @@ const request = (options) => {
 
     serializeData(settings);
 
-    let mime = settings.accepts[dataType];
-    let baseHeads = {};
-    let protocol = /^([\w-]+:)\/\//.test(settings.url) ? RegExp.$1 : 'http';
-    let xhr = settings.xhr();
+    var mime = settings.accepts[dataType];
+    var baseHeads = {};
+    var protocol = /^([\w-]+:)\/\//.test(settings.url) ? RegExp.$1 : 'http';
+    var xhr = settings.xhr();
     xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
-    let abortTimeout;
+    var abortTimeout = void 0;
 
     if (!settings.crossDomain) {
         baseHeads['X-Requested-With'] = 'XMLHttpRequest';
@@ -3150,44 +3161,38 @@ const request = (options) => {
         }
         xhr.overrideMimeType && xhr.overrideMimeType(mime);
     }
-    if (settings.contentType || (settings.data && settings.type.toUpperCase() !== 'Get')) {
-        baseHeads['Content-Type'] = (settings.contentType || 'application/x-www-form-urlencoded');
+    if (settings.contentType || settings.data && settings.type.toUpperCase() !== 'Get') {
+        baseHeads['Content-Type'] = settings.contentType || 'application/x-www-form-urlencoded';
     }
     settings.headers = _.extend(baseHeads, settings.headers || {});
 
-    xhr.onreadystatechange = () => {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             clearTimeout(abortTimeout);
-            let result;
-            let error = false
-            if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304
-                || (xhr.status === 0 && protocol === 'file:')) {
+            var result = void 0;
+            var error = false;
+            if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304 || xhr.status === 0 && protocol === 'file:') {
                 dataType = dataType || mimeToDataType(xhr.getResponseHeader('content-type'));
                 result = xhr.responseText;
 
                 try {
                     if (dataType === 'script') {
-                        (1,eval)(result);
-                    }
-                    else if (dataType === 'xml') {
+                        (1, eval)(result);
+                    } else if (dataType === 'xml') {
                         result = xhr.responseXML;
-                    }
-                    else if (dataType === 'json') {
+                    } else if (dataType === 'json') {
                         result = blankRE.test(result) ? null : JSON.parse(result);
                     }
-                }
-                catch (e) {
+                } catch (e) {
                     error = e;
                 }
 
                 if (error) {
                     ajaxError(error, 'parsererror', xhr, settings);
-                }
-                else {
+                } else {
                     ajaxSuccess(result, xhr, settings);
                 }
-            }
-            else {
+            } else {
                 ajaxError(null, 'error', xhr, settings);
             }
         }
@@ -3196,7 +3201,7 @@ const request = (options) => {
     var async = 'async' in settings ? settings.async : true;
     xhr.open(settings.type, settings.url, async);
 
-    for (let name in settings.headers) {
+    for (var name in settings.headers) {
         xhr.setRequestHeader(name, settings.headers[name]);
     }
 
@@ -3206,8 +3211,8 @@ const request = (options) => {
     }
 
     if (settings.timeout > 0) {
-        abortTimeout = setTimeout(() => {
-            xhr.onreadystatechange = () => {};
+        abortTimeout = setTimeout(function () {
+            xhr.onreadystatechange = function () {};
             xhr.abort();
             ajaxError(null, 'timeout', xhr, settings);
         }, settings.timeout);
@@ -3218,15 +3223,15 @@ const request = (options) => {
     return xhr;
 };
 
-const ajax = {};
+var ajax = {};
 
 ajax.request = request;
 
-ajax.get = (url, success) => (
-    request({url, success})
-);
+ajax.get = function (url, success) {
+    return request({ url: url, success: success });
+};
 
-ajax.post = (url, data, success, dataType) => {
+ajax.post = function (url, data, success, dataType) {
     if (typeof data === 'function') {
         dataType = dataType || success;
         success = data;
@@ -3234,188 +3239,194 @@ ajax.post = (url, data, success, dataType) => {
     }
     return request({
         type: 'POST',
-        url,
-        data,
-        success,
-        dataType
+        url: url,
+        data: data,
+        success: success,
+        dataType: dataType
     });
 };
 
-ajax.getJSON = (url, success) => (
-    request({url, success, dataType: 'json'})
-);
+ajax.getJSON = function (url, success) {
+    return request({ url: url, success: success, dataType: 'json' });
+};
 
 // hooks start
 ajax.active = 0;
 
 // trigger a custom event and return false if it was cancelled
-const triggerAndReturn = (context, eventName, data) => {
+var triggerAndReturn = function triggerAndReturn(context, eventName, data) {
     // todo: Fire off some events
     return true;
 };
 
 // trigger an Ajax "global" event
-const triggerGlobal = (settings, context, eventName, data) => {
+var triggerGlobal = function triggerGlobal(settings, context, eventName, data) {
     if (settings.global) {
         return triggerAndReturn(context || global.document, eventName, data);
     }
 };
 
-const ajaxStart = (settings) => {
+var ajaxStart = function ajaxStart(settings) {
     if (settings.global && ajax.active++ === 0) {
         triggerGlobal(settings, null, 'ajaxStart');
     }
 };
 
-const ajaxStop = (settings) => {
-    if (settings.global && !(--ajax.active)) {
+var ajaxStop = function ajaxStop(settings) {
+    if (settings.global && ! --ajax.active) {
         triggerGlobal(settings, null, 'ajaxStop');
     }
 };
 
 // triggers an extra global event "ajaxBeforeSend" that's like "ajaxSend" but cancelable
-const ajaxBeforeSend = (xhr, settings) => {
-    let context = settings.context;
-    if (settings.beforeSend.call(context, xhr, settings) === false
-        || triggerGlobal(settings, context, 'ajaxBeforeSend', [xhr, settings]) === false) {
+var ajaxBeforeSend = function ajaxBeforeSend(xhr, settings) {
+    var context = settings.context;
+    if (settings.beforeSend.call(context, xhr, settings) === false || triggerGlobal(settings, context, 'ajaxBeforeSend', [xhr, settings]) === false) {
         return false;
     }
     triggerGlobal(settings, context, 'ajaxSend', [xhr, settings]);
 };
 
-const ajaxSuccess = (data, xhr, settings) => {
-    let context = settings.context;
-    let status = 'success';
+var ajaxSuccess = function ajaxSuccess(data, xhr, settings) {
+    var context = settings.context;
+    var status = 'success';
     settings.success.call(context, data, status, xhr);
     triggerGlobal(settings, context, 'ajaxSuccess', [xhr, settings, data]);
     ajaxComplete(status, xhr, settings);
 };
 
 // type: "timeout", "error", "abort", "parseerror"
-const ajaxError = (error, type, xhr, settings) => {
-    let context = settings.context;
+var ajaxError = function ajaxError(error, type, xhr, settings) {
+    var context = settings.context;
     settings.error.call(context, xhr, type, error);
     triggerGlobal(settings, context, 'ajaxError', [xhr, settings, error]);
     ajaxComplete(type, xhr, settings);
 };
 
 // status: "success", "notmodified", "error", "timeout", "abort", "parsererror"
-const ajaxComplete = (status, xhr, settings) => {
-    let context = settings.context;
+var ajaxComplete = function ajaxComplete(status, xhr, settings) {
+    var context = settings.context;
     settings.complete.call(context, xhr, status);
     triggerGlobal(settings, context, 'ajaxComplete', [xhr, settings]);
     ajaxStop(settings);
 };
 // hooks end
 
-const rand16Num = (len) => {
+var rand16Num = function rand16Num(len) {
     len = len || 0;
-    let results = [];
-    for (let i = 0; i < len; i++) {
-        results.push('0123456789abcdef'.charAt(
-            Math.floor(Math.random() * 16))
-        );
+    var results = [];
+    for (var i = 0; i < len; i++) {
+        results.push('0123456789abcdef'.charAt(Math.floor(Math.random() * 16)));
     }
     return results.join('');
 };
 
-const uid = () => [(new Date()).valueOf().toString(), rand16Num(4)].join('');
+var uid = function uid() {
+    return [new Date().valueOf().toString(), rand16Num(4)].join('');
+};
 
-const guid = () => {
-    let curr = (new Date()).valueOf().toString();
+var guid = function guid() {
+    var curr = new Date().valueOf().toString();
     return ['4b534c46', rand16Num(4), '4' + rand16Num(3), rand16Num(4), curr.substring(0, 12)].join('-');
 };
 
-const adjustOptions = (path, params, options) => {
+var adjustOptions = function adjustOptions(path, params, options) {
     options = options || {};
 
-    let userid = options.userid || '';
-    let token = options.token || '';
-    let reqId = options.reqId || uid();
-    let eventId = options.eventId || guid();
-    let secret = options.secret;
-    let source = options.source;
+    var userid = options.userid || '';
+    var token = options.token || '';
+    var reqId = options.reqId || uid();
+    var eventId = options.eventId || guid();
+    var secret = options.secret;
+    var source = options.source;
 
     params = JSON.stringify(params || {});
 
-    let data = {reqId, userid, token, path, eventId, params};
+    var data = { reqId: reqId, userid: userid, token: token, path: path, eventId: eventId, params: params };
     secret && (data.secret = secret);
     source && (data.source = source);
 
-    let urlParams = {reqId};
+    var urlParams = { reqId: reqId };
 
-    let omitNames = ['userid', 'token', 'reqId', 'eventId', 'secret', 'source']
-    let otherOptions = _.omit(options, omitNames);
+    var omitNames = ['userid', 'token', 'reqId', 'eventId', 'secret', 'source'];
+    var otherOptions = _.omit(options, omitNames);
 
-    return _.extend(otherOptions, {path, data, urlParams});
+    return _.extend(otherOptions, { path: path, data: data, urlParams: urlParams });
 };
 
-const getRedirectUrl = (baseUrl) => {
+var getRedirectUrl = function getRedirectUrl(baseUrl) {
     if (baseUrl == null) {
         baseUrl = global.location.href;
     }
-    let search = url.parse(baseUrl).search || '';
+    var search = url.parse(baseUrl).search || '';
 
     return url.resolve(baseUrl, 'main.do') + search;
 };
 
-class Ajax {
-    constructor(globalOptions) {
+var Ajax = function () {
+    function Ajax(globalOptions) {
+        _classCallCheck(this, Ajax);
+
         this.globalOptions = globalOptions || {};
     }
 
-    request(path, params, options) {
-        options = _.extend({}, this.globalOptions, options);
-        let ajaxOptions = adjustOptions(path, params, options);
+    _createClass(Ajax, [{
+        key: 'request',
+        value: function request(path, params, options) {
+            options = _.extend({}, this.globalOptions, options);
+            var ajaxOptions = adjustOptions(path, params, options);
 
-        let p = new Promise((resolve, reject) => {
-            ajaxOptions.success = resolve;
-            ajaxOptions.error = reject
-        });
+            var p = new Promise(function (resolve, reject) {
+                ajaxOptions.success = resolve;
+                ajaxOptions.error = reject;
+            });
 
-        ajax.request(ajaxOptions);
+            ajax.request(ajaxOptions);
 
-        return p.then((response) => {
-            // 如果是转向行为，直接转向，整体转为reject
-            if (_.isObject(response) && response.redirect) {
-                throw {
-                    status: status.REQ_CODE.REDIRECT,
-                    desc: status.REQ_CODE_DESC.REDIRECT,
-                    redirecturl: response.redirecturl || getRedirectUrl(options.baseUrl),
-                    response: response
-                };
-            }
-            return response;
-        }, (error) => {
-            let httpStatus = error.status;
+            return p.then(function (response) {
+                // 如果是转向行为，直接转向，整体转为reject
+                if (_.isObject(response) && response.redirect) {
+                    throw {
+                        status: status.REQ_CODE.REDIRECT,
+                        desc: status.REQ_CODE_DESC.REDIRECT,
+                        redirecturl: response.redirecturl || getRedirectUrl(options.baseUrl),
+                        response: response
+                    };
+                }
+                return response;
+            }, function (error) {
+                var httpStatus = error.status;
 
-            if (httpStatus === 408) {
-                throw {
-                    status: status.REQ_CODE.TIMEOUT,
-                    desc: status.REQ_CODE_DESC.TIMEOUT,
-                    response: null
-                };
-            }
+                if (httpStatus === 408) {
+                    throw {
+                        status: status.REQ_CODE.TIMEOUT,
+                        desc: status.REQ_CODE_DESC.TIMEOUT,
+                        response: null
+                    };
+                }
 
-            if (httpStatus < 200 || (httpStatus >= 300 && httpStatus !== 304)) {
+                if (httpStatus < 200 || httpStatus >= 300 && httpStatus !== 304) {
+                    throw {
+                        httpStatus: httpStatus,
+                        status: status.REQ_CODE.REQUEST_ERROR,
+                        desc: status.REQ_CODE_DESC.REQUEST_ERROR,
+                        response: null
+                    };
+                }
+
                 throw {
                     httpStatus: httpStatus,
                     status: status.REQ_CODE.REQUEST_ERROR,
                     desc: status.REQ_CODE_DESC.REQUEST_ERROR,
+                    error: JSON.stringify(error.error),
                     response: null
                 };
-            }
+            });
+        }
+    }]);
 
-            throw {
-                httpStatus: httpStatus,
-                status: status.REQ_CODE.REQUEST_ERROR,
-                desc: status.REQ_CODE_DESC.REQUEST_ERROR,
-                error: JSON.stringify(error.error),
-                response: null
-            };
-        });
-    }
-}
+    return Ajax;
+}();
 
 module.exports = Ajax;
 
@@ -3423,10 +3434,10 @@ module.exports = Ajax;
 },{"./defaultSettings":11,"./status":12,"underscore":9,"url":7}],11:[function(require,module,exports){
 'use strict';
 
-const XHR = require('../lib/XMLHttpRequest');
+var XHR = require('../lib/XMLHttpRequest');
 
 // Empty function, used as default callback
-const empty = () => {};
+var empty = function empty() {};
 
 module.exports = {
     // Default type of request
@@ -3444,7 +3455,7 @@ module.exports = {
     // Whether to trigger "global" Ajax events
     global: true,
     // Transport
-    xhr: function () {
+    xhr: function xhr() {
         return new XHR();
     },
     // MIME types mapping
@@ -3472,27 +3483,28 @@ module.exports = {
  * ajax数据携带的业务status code配置
  * @type {Object}
  */
-const REQ_STATUS_CODE = {
+
+var REQ_STATUS_CODE = {
     INITIALIZE: 0,
-    SUCCESS: 200,  // 这是成功的标识，下面的都是失败
-    PARTFAIL: 300,  // 业务部分失败
-    REDIRECT: 302,  // 需要转向另外一个地址
-    FAIL: 400,  // 业务失败
-    SERVER_ERROR: 500,  // 服务端异常
-    PARAMETER_ERROR: 600,  // 请求参数错误
-    NOAUTH: 700,  // 没有权限
-    SERVER_EXCEEDED: 800,  // 数量超过限制
-    TIMEOUT: 900,  // 超时
-    CLIENT_SIDE_EXCEPTION: 910,  // ajax成功了，但是后置处理数据抛出异常
-    REQUEST_ERROR: 920,  // ajax通讯发生了错误，这时需要去看httpStatus
-    UNRECOGNIZED_STATUS: 930  // 返回的status没有被识别
+    SUCCESS: 200, // 这是成功的标识，下面的都是失败
+    PARTFAIL: 300, // 业务部分失败
+    REDIRECT: 302, // 需要转向另外一个地址
+    FAIL: 400, // 业务失败
+    SERVER_ERROR: 500, // 服务端异常
+    PARAMETER_ERROR: 600, // 请求参数错误
+    NOAUTH: 700, // 没有权限
+    SERVER_EXCEEDED: 800, // 数量超过限制
+    TIMEOUT: 900, // 超时
+    CLIENT_SIDE_EXCEPTION: 910, // ajax成功了，但是后置处理数据抛出异常
+    REQUEST_ERROR: 920, // ajax通讯发生了错误，这时需要去看httpStatus
+    UNRECOGNIZED_STATUS: 930 // 返回的status没有被识别
 };
 
 /**
  * ajax的数据携带的业务status code对应的desc配置
  * @type {Object}
  */
-const REQ_STATUS_DESC = {
+var REQ_STATUS_DESC = {
     INITIALIZE: 'ajax-initialize',
     SUCCESS: 'ajax-success',
     PARTFAIL: 'ajax-some-failed',
