@@ -35,7 +35,7 @@ const serializeData = (options) => {
 };
 
 const param = (obj) => {
-    let params = [];
+    const params = [];
     params.add = function(k, v) {
         this.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     };
@@ -45,9 +45,9 @@ const param = (obj) => {
 };
 
 const serialize = (params, obj, scope) => {
-    let isArray = _.isArray(obj);
+    const isArray = _.isArray(obj);
     for (let key in obj) {
-        let value = obj[key];
+        const value = obj[key];
         if (scope) {
             key = isArray ? scope : `${scope}.${key}`;
         }
@@ -64,7 +64,7 @@ const serialize = (params, obj, scope) => {
 };
 
 const request = (options) => {
-    let settings = _.extend({}, defaultSettings, options || {});
+    const settings = _.extend({}, defaultSettings, options || {});
 
     ajaxStart(settings);
 
@@ -79,7 +79,7 @@ const request = (options) => {
     settings.url = appendQuery(settings.url, param(settings.urlParams));
 
     let dataType = settings.dataType;
-    let hasPlaceholder = /=\?/.test(settings.url);
+    const hasPlaceholder = /=\?/.test(settings.url);
     if (dataType === 'jsonp' || hasPlaceholder) {
         if (!hasPlaceholder) {
             settings.url = appendQuery(settings.url, 'callback=?');
@@ -90,9 +90,9 @@ const request = (options) => {
     serializeData(settings);
 
     let mime = settings.accepts[dataType];
-    let baseHeads = {};
-    let protocol = /^([\w-]+:)\/\//.test(settings.url) ? RegExp.$1 : 'http';
-    let xhr = settings.xhr();
+    const baseHeads = {};
+    const protocol = /^([\w-]+:)\/\//.test(settings.url) ? RegExp.$1 : 'http';
+    const xhr = settings.xhr();
     xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
     let abortTimeout;
 
@@ -123,7 +123,7 @@ const request = (options) => {
 
                 try {
                     if (dataType === 'script') {
-                        (1,eval)(result);
+                        (1, eval)(result);
                     }
                     else if (dataType === 'xml') {
                         result = xhr.responseXML;
@@ -149,10 +149,10 @@ const request = (options) => {
         }
     };
 
-    var async = 'async' in settings ? settings.async : true;
+    const async = 'async' in settings ? settings.async : true;
     xhr.open(settings.type, settings.url, async);
 
-    for (let name in settings.headers) {
+    for (const name in settings.headers) {
         xhr.setRequestHeader(name, settings.headers[name]);
     }
 
@@ -231,7 +231,7 @@ const ajaxStop = (settings) => {
 
 // triggers an extra global event "ajaxBeforeSend" that's like "ajaxSend" but cancelable
 const ajaxBeforeSend = (xhr, settings) => {
-    let context = settings.context;
+    const context = settings.context;
     if (settings.beforeSend.call(context, xhr, settings) === false
         || triggerGlobal(settings, context, 'ajaxBeforeSend', [xhr, settings]) === false) {
         return false;
@@ -240,8 +240,8 @@ const ajaxBeforeSend = (xhr, settings) => {
 };
 
 const ajaxSuccess = (data, xhr, settings) => {
-    let context = settings.context;
-    let status = 'success';
+    const context = settings.context;
+    const status = 'success';
     settings.success.call(context, data, status, xhr);
     triggerGlobal(settings, context, 'ajaxSuccess', [xhr, settings, data]);
     ajaxComplete(status, xhr, settings);
@@ -249,7 +249,7 @@ const ajaxSuccess = (data, xhr, settings) => {
 
 // type: "timeout", "error", "abort", "parseerror"
 const ajaxError = (error, type, xhr, settings) => {
-    let context = settings.context;
+    const context = settings.context;
     settings.error.call(context, xhr, type, error);
     triggerGlobal(settings, context, 'ajaxError', [xhr, settings, error]);
     ajaxComplete(type, xhr, settings);
@@ -257,7 +257,7 @@ const ajaxError = (error, type, xhr, settings) => {
 
 // status: "success", "notmodified", "error", "timeout", "abort", "parsererror"
 const ajaxComplete = (status, xhr, settings) => {
-    let context = settings.context;
+    const context = settings.context;
     settings.complete.call(context, xhr, status);
     triggerGlobal(settings, context, 'ajaxComplete', [xhr, settings]);
     ajaxStop(settings);
@@ -266,7 +266,7 @@ const ajaxComplete = (status, xhr, settings) => {
 
 const rand16Num = (len) => {
     len = len || 0;
-    let results = [];
+    const results = [];
     for (let i = 0; i < len; i++) {
         results.push('0123456789abcdef'.charAt(
             Math.floor(Math.random() * 16))
@@ -278,30 +278,30 @@ const rand16Num = (len) => {
 const uid = () => [(new Date()).valueOf().toString(), rand16Num(4)].join('');
 
 const guid = () => {
-    let curr = (new Date()).valueOf().toString();
+    const curr = (new Date()).valueOf().toString();
     return ['4b534c46', rand16Num(4), '4' + rand16Num(3), rand16Num(4), curr.substring(0, 12)].join('-');
 };
 
 const adjustOptions = (path, params, options) => {
     options = options || {};
 
-    let userid = options.userid || '';
-    let token = options.token || '';
-    let reqId = options.reqId || uid();
-    let eventId = options.eventId || guid();
-    let secret = options.secret;
-    let source = options.source;
+    const userid = options.userid || '';
+    const token = options.token || '';
+    const reqId = options.reqId || uid();
+    const eventId = options.eventId || guid();
+    const secret = options.secret;
+    const source = options.source;
 
     params = JSON.stringify(params || {});
 
-    let data = {reqId, userid, token, path, eventId, params};
+    const data = {reqId, userid, token, path, eventId, params};
     secret && (data.secret = secret);
     source && (data.source = source);
 
-    let urlParams = {reqId};
+    const urlParams = {reqId};
 
-    let omitNames = ['userid', 'token', 'reqId', 'eventId', 'secret', 'source']
-    let otherOptions = _.omit(options, omitNames);
+    const omitNames = ['userid', 'token', 'reqId', 'eventId', 'secret', 'source']
+    const otherOptions = _.omit(options, omitNames);
 
     return _.extend(otherOptions, {path, data, urlParams});
 };
@@ -310,7 +310,7 @@ const getRedirectUrl = (baseUrl) => {
     if (baseUrl == null) {
         baseUrl = global.location.href;
     }
-    let search = url.parse(baseUrl).search || '';
+    const search = url.parse(baseUrl).search || '';
 
     return url.resolve(baseUrl, 'main.do') + search;
 };
@@ -322,9 +322,9 @@ class Ajax {
 
     request(path, params, options) {
         options = _.extend({}, this.globalOptions, options);
-        let ajaxOptions = adjustOptions(path, params, options);
+        const ajaxOptions = adjustOptions(path, params, options);
 
-        let p = new Promise((resolve, reject) => {
+        const p = new Promise((resolve, reject) => {
             ajaxOptions.success = resolve;
             ajaxOptions.error = reject
         });
@@ -343,7 +343,7 @@ class Ajax {
             }
             return response;
         }, (error) => {
-            let httpStatus = error.status;
+            const httpStatus = error.status;
 
             if (httpStatus === 408) {
                 throw {
