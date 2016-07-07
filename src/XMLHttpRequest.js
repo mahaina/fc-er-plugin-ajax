@@ -1,7 +1,11 @@
-'use strict';
+if (typeof define !== 'function') {var define = require('amdefine')(module)}
 
-const XHR = require('xmlhttprequest');
+define(function (require) {
+    'use strict';
 
-module.exports = function () {
-    return new XHR.XMLHttpRequest();
-};
+    const XHR = require('xmlhttprequest');
+
+    return function () {
+        return new XHR.XMLHttpRequest();
+    };
+});

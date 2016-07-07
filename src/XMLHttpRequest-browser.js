@@ -1,7 +1,11 @@
-'use strict';
+if (typeof define !== 'function') {var define = require('amdefine')(module)}
 
-module.exports = function () {
-    return global.XMLHttpRequest
-        ? new global.XMLHttpRequest()
-        : new global.ActiveXObject('Microsoft.XMLHTTP');;
-};
+define(function (require) {
+    'use strict';
+
+    return function () {
+        return global.XMLHttpRequest
+            ? new global.XMLHttpRequest()
+            : new global.ActiveXObject('Microsoft.XMLHTTP');
+    };
+});
