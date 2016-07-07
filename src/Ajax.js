@@ -4,7 +4,6 @@ define(function (require) {
     'use strict';
 
     const defaultSettings = require('./defaultSettings');
-    const url = require('url');
 
     const _ = require('underscore');
     const status = require('./status');
@@ -25,7 +24,57 @@ define(function (require) {
                 xmlTypeRE.test(mime) && 'xml') || 'text'
     );
 
+    const stripTailPathPartition = (path) => {
+        const tailSlashIndex = path.lastIndexOf('/');
+        if (tailSlashIndex === -1) {
+            return null;
+        }
+        return path.substring(0, tailSlashIndex);
+    };
 
+    const sanityPath = (url) => {
+        const hashSeparatorIndex = url.lastIndexOf('#');
+        if (hashSeparatorIndex >= 0) {
+            url = url.substring(0, hashSeparatorIndex);
+        }
+        const searchSeparatorIndex = url.lastIndexOf('?');
+        if (searchSeparatorIndex >= 0) {
+            url = url.substring(0, searchSeparatorIndex);
+        }
+
+        const lastSlashIndex = url.lastIndexOf('/');
+        if (lastSlashIndex >= 0) {
+            url = url.substring(0, lastSlashIndex);
+        }
+
+        return url;
+    };
+
+    const urlResolve = (source, relative) => {
+        const orginalSource = source;
+        source = sanityPath(source);
+
+        const match = source.match(/(https?:\/\/)?(.*)/);
+        const protocol = (match && match[1]) || '';
+        let path = (match && match[2]) || '';
+
+        const relativeArr = relative.split('/')
+        for (let i = 0, len = relativeArr.length; i < len; i++) {
+            switch (relativeArr[i]) {
+                case '..':
+                    if ((path = stripTailPathPartition(path)) == null) {
+                        return orginalSource;
+                    }
+                    break;
+                case '.':
+                    break;
+                default:
+                    path = `${path}/${relativeArr[i]}`;
+                    break;
+            }
+        }
+        return `${protocol}${path}`;
+    };
 
 // serialize payload and append it to the URL for GET requests
     const serializeData = (options) => {
@@ -76,7 +125,7 @@ define(function (require) {
         }
 
         if (settings.baseUrl) {
-            settings.url = url.resolve(settings.baseUrl, settings.url);
+            settings.url = urlResolve(settings.baseUrl, settings.url);
         }
         settings.url = appendQuery(settings.url, `path=${options.path}`);
         settings.url = appendQuery(settings.url, param(settings.urlParams));
@@ -313,9 +362,11 @@ define(function (require) {
         if (baseUrl == null) {
             baseUrl = global.location.href;
         }
-        const search = url.parse(baseUrl).search || '';
 
-        return url.resolve(baseUrl, 'main.do') + search;
+        const querySeparatorIndex = baseUrl.indexOf('?');
+        const search = querySeparatorIndex === -1 ? '' : baseUrl.substring(querySeparatorIndex);
+
+        return urlResolve(baseUrl, 'main.do') + search;
     };
 
     class Ajax {

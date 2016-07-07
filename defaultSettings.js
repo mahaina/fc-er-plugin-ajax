@@ -7,7 +7,7 @@ if (typeof define !== 'function') {
 define(function (require) {
     'use strict';
 
-    var XHRFactory = require('./XMLHttpRequest');
+    var XHRFactory = require('./XMLHttpRequest-browser');
 
     // Empty function, used as default callback
     var empty = function empty() {};
