@@ -378,10 +378,11 @@ define(function (require) {
             options = _.extend({}, this.globalOptions, options);
             const ajaxOptions = adjustOptions(path, params, options);
 
-            const p = new Promise((resolve, reject) => {
-                ajaxOptions.success = resolve;
-                ajaxOptions.error = reject
-            });
+            const d = new Deferred();
+            ajaxOptions.success = d.resolver.resolve;
+            ajaxOptions.error = d.resolver.reject;
+
+            const p = d.promise;
 
             ajax.request(ajaxOptions);
 

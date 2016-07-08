@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "amdefine": "^1.0.0",
+    "fc-er": "^1.1.18",
     "underscore": "^1.8.3",
     "xmlhttprequest": "^1.8.0"
   },
