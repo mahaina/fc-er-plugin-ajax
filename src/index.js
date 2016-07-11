@@ -11,7 +11,7 @@ define(function (require) {
             erContext.request = ajax.request.bind(ajax);
         }
 
-        get name () {
+        static get name () {
             return 'ajax';
         }
     }
