@@ -7,6 +7,8 @@ define(function (require) {
 
     class AjaxPlugin {
         constructor(erContext, options) {
+            this.name = 'ajax';
+
             let ajax = new Ajax(options);
             erContext.request = ajax.request.bind(ajax);
         }
