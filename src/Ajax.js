@@ -12,7 +12,6 @@ define(function (require) {
     const blankRE = /^\s*$/;
     const scriptTypeRE = /^(?:text|application)\/javascript/i;
     const xmlTypeRE = /^(?:text|application)\/xml/i;
-    const Deferred = require('fc-er/Deferred');
 
     const appendQuery = (url, query) => (
         (url + '&' + query).replace(/[&?]{1,2}/, '?')
@@ -376,6 +375,7 @@ define(function (require) {
         }
 
         request(path, params, options) {
+            const Deferred = require('fc-er/Deferred');
             options = _.extend({}, this.globalOptions, options);
             const ajaxOptions = adjustOptions(path, params, options);
 
